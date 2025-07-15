@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .course-list-display {
+            text-align: left;
+            margin-top: 10px;
+            padding: 5px;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .course-list-display ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .course-list-display li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Your Profile</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="flashes">
+                    {% for category, message in messages %}
+                        <li class="{{ category }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+        <form method="POST" action="{{ url_for('main.profile') }}">
+            <div>
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" value="{{ user.name }}" required>
+            </div>
+            <div>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" value="{{ user.email }}" required>
+            </div>
+            <div>
+                <label for="password">New Password (leave blank to keep current):</label>
+                <input type="password" id="password" name="password">
+            </div>
+            <p>Role: <strong>{{ user.role.capitalize() }}</strong></p>
+
+            {# Student-specific profile fields #}
+            {% if user.role == 'student' %}
+            <div>
+                <label for="year_of_study">Year of Study:</label>
+                <select id="year_of_study" name="year_of_study">
+                    <option value="">Select Year</option>
+                    <option value="1st Year" {% if user.year_of_study == '1st Year' %}selected{% endif %}>1st Year</option>
+                    <option value="2nd Year" {% if user.year_of_study == '2nd Year' %}selected{% endif %}>2nd Year</option>
+                    <option value="3rd Year" {% if user.year_of_study == '3rd Year' %}selected{% endif %}>3th Year</option>
+                    <option value="4th Year" {% if user.year_of_study == '4th Year' %}selected{% endif %}>4th Year</option>
+                    <option value="Graduate" {% if user.year_of_study == 'Graduate' %}selected{% endif %}>Graduate</option>
+                </select>
+            </div>
+            <div>
+                <label for="major">Major:</label>
+                <input type="text" id="major" name="major" value="{{ user.major or '' }}" placeholder="e.g., Computer Science">
+            </div>
+            {% endif %}
+
+            {# Display Associated Courses #}
+            {% if associated_courses %}
+            <div>
+                <label>{{ user.role.capitalize() }} Courses:</label>
+                <div class="course-list-display">
+                    <ul>
+                    {% for course in associated_courses %}
+                        {# 'course' here is a dictionary from get_enrolled_courses/get_supervised_courses #}
+                        <li>{{ course.name }} - {{ course.description }}</li>
+                    {% endfor %}
+                    </ul>
+                    {# Note: Editing associated courses directly on profile is more complex and not implemented here.
+                       It would require fetching all courses and a way to add/remove associations. #}
+                </div>
+            </div>
+            {% endif %}
+
+            <button type="submit">Update Profile</button>
+        </form>
+        <p><a href="{{ url_for('main.dashboard') }}">Back to Dashboard</a></p>
+        <p><a href="{{ url_for('main.logout') }}">Log Out</a></p>
+    </div>
+    <script>
+        // Basic script to enable/disable fields if they are student-specific
+        document.addEventListener('DOMContentLoaded', function() {
+            const role = "{{ user.role }}";
+            const yearOfStudySelect = document.getElementById('year_of_study');
+            const majorInput = document.getElementById('major');
+
+            if (role === 'student') {
+                // Ensure fields are enabled for students
+                if (yearOfStudySelect) yearOfStudySelect.disabled = false;
+                if (majorInput) majorInput.disabled = false;
+            } else {
+                // For non-students, these fields should be disabled (display only if values exist)
+                if (yearOfStudySelect) yearOfStudySelect.disabled = true;
+                if (majorInput) majorInput.disabled = true;
+            }
+        });
+    </script>
+</body>
+</html>

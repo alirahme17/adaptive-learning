@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate Quiz</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        /* Styles from previous versions for consistency */
+        .document-selection {
+            border: 1px solid #ccc;
+            padding: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .document-selection label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: normal;
+        }
+        .document-selection input[type="checkbox"] {
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Generate New Quiz</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="flashes">
+                    {% for category, message in messages %}
+                        <li class="{{ category }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('main.generate_quiz') }}">
+            <div>
+                <label for="quiz_title">Quiz Title:</label>
+                <input type="text" id="quiz_title" name="quiz_title" required>
+            </div>
+            <div>
+                <label for="quiz_description">Quiz Description (Optional):</label>
+                <textarea id="quiz_description" name="quiz_description" rows="3"></textarea>
+            </div>
+
+            {# --- NEW: Course and Lesson Selection --- #}
+            <div>
+                <label for="course_id">Select Course for Quiz:</label>
+                <select id="course_id" name="course_id" required>
+                    <option value="">-- Choose your supervised course --</option>
+                    {% if supervised_courses %}
+                        {% for course in supervised_courses %}
+                            <option value="{{ course.id }}">{{ course.name }}</option>
+                        {% endfor %}
+                    {% else %}
+                        <option value="">No courses found. Please add courses to your profile!</option>
+                    {% endif %}
+                </select>
+            </div>
+            <div>
+                <label for="lesson_name">Lesson or Topic for Quiz:</label>
+                <input type="text" id="lesson_name" name="lesson_name" required placeholder="e.g., Derivatives, Photosynthesis, Python Loops">
+            </div>
+            {# --- END NEW SELECTION --- #}
+
+            <div>
+                <label for="num_questions">Number of Questions:</label>
+                <input type="number" id="num_questions" name="num_questions" value="3" min="1" max="20" required>
+            </div>
+
+            <div>
+                <label for="question_type">Question Type:</label>
+                <select id="question_type" name="question_type" required>
+                    <option value="mcq">Multiple Choice</option>
+                    <option value="true_false">True/False</option>
+                    <option value="short_answer">Short Answer</option>
+                </select>
+            </div>
+            
+            <button type="submit">Generate Quiz</button>
+        </form>
+
+        <p><a href="{{ url_for('main.dashboard') }}">Back to Dashboard</a></p>
+        <p><a href="{{ url_for('main.logout') }}">Log Out</a></p>
+    </div>
+</body>
+</html>

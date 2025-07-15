@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate Student Quiz</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Generate Your Quiz (3 Questions)</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="flashes">
+                    {% for category, message in messages %}
+                        <li class="{{ category }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('main.student_generate_quiz') }}">
+            <div>
+                <label for="course_id">Select Course:</label>
+                <select id="course_id" name="course_id" required>
+                    <option value="">-- Choose your enrolled course --</option>
+                    {% if courses %}
+                        {% for course in courses %}
+                            <option value="{{ course.id }}">{{ course.name }}</option>
+                        {% endfor %}
+                    {% else %}
+                        <option value="">No courses found. Please enroll in some courses first!</option>
+                    {% endif %}
+                </select>
+            </div>
+            <div>
+                <label for="lesson_name">Lesson or Topic for Quiz:</label>
+                <input type="text" id="lesson_name" name="lesson_name" required placeholder="e.g., Derivatives, Photosynthesis, Python Loops">
+            </div>
+            
+            <button type="submit">Generate My Quiz</button>
+        </form>
+
+        <p><a href="{{ url_for('main.list_quizzes') }}">Back to All Quizzes</a></p>
+        <p><a href="{{ url_for('main.dashboard') }}">Back to Dashboard</a></p>
+        <p><a href="{{ url_for('main.logout') }}">Log Out</a></p>
+    </div>
+</body>
+</html>

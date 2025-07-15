@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        /* Specific styles for chatbot */
+        .chat-container {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            height: 80vh; /* Adjust height as needed */
+        }
+        .chat-messages {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            border-bottom: 1px solid #eee;
+        }
+        .message {
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            border-radius: 18px;
+            line-height: 1.5;
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+        .message.user {
+                background-color: #007bff;
+                color: white;
+                align-self: flex-end; /* Align to the right */
+                margin-left: auto;
+                border-bottom-right-radius: 2px;
+            }
+            .message.bot {
+                background-color: #e2e6ea;
+                color: #333;
+                align-self: flex-start; /* Align to the left */
+                margin-right: auto;
+                border-bottom-left-radius: 2px;
+            }
+            .chat-input {
+                display: flex;
+                padding: 15px;
+                border-top: 1px solid #eee;
+            }
+            .chat-input input[type="text"] {
+                flex-grow: 1;
+                padding: 10px;
+                border: 1px solid #ddd;
+                border-radius: 20px;
+                margin-right: 10px;
+            }
+            .chat-input button {
+                padding: 10px 20px;
+                border-radius: 20px;
+                cursor: pointer;
+                background-color: #28a745;
+                color: white;
+                border: none;
+            }
+            .chat-input button:hover {
+                background-color: #218838;
+            }
+            .file-upload-section {
+                display: flex;
+                align-items: center;
+                margin-top: 10px;
+                padding: 0 15px 15px;
+            }
+            .file-upload-section input[type="file"] {
+                margin-right: 10px;
+                flex-grow: 1;
+                padding: 5px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+            }
+            .file-upload-section label {
+                display: inline-block;
+                background-color: #6c757d;
+                color: white;
+                padding: 8px 15px;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 0.9em;
+                margin-right: 10px;
+            }
+            .file-upload-section label:hover {
+                background-color: #5a6268;
+            }
+            #fileNameDisplay {
+                font-size: 0.9em;
+                color: #666;
+                margin-left: 5px;
+            }
+            .chat-header {
+                background-color: #007bff;
+                color: white;
+                padding: 15px;
+                border-radius: 8px 8px 0 0;
+                text-align: center;
+                font-size: 1.2em;
+            }
+            .chat-header a {
+                color: white;
+                text-decoration: underline;
+                font-size: 0.8em;
+                float: right;
+                margin-top: 5px;
+            }
+            /* Override global container style to allow chat-container to manage its own layout */
+            body > .container {
+                display: none;
+            }
+            /* Styles for markdown elements */
+            .message.bot p:first-child { margin-top: 0; }
+            .message.bot p:last-child { margin-bottom: 0; }
+            .message.bot ul, .message.bot ol { margin-left: 20px; padding-left: 0; }
+            .message.bot code { background-color: #e0e0e0; padding: 2px 4px; border-radius: 4px; font-family: 'Courier New', Courier, monospace; }
+            .message.bot pre { background-color: #333; color: #f8f8f2; padding: 10px; border-radius: 5px; overflow-x: auto; font-family: 'Courier New', Courier, monospace; }
+        </style>
+        <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    </head>
+    <body>
+        <div class="container" style="max-width: 800px; margin-top: 20px; box-shadow: none; padding: 0;">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <ul class="flashes">
+                        {% for category, message in messages %}
+                            <li class="{{ category }}">{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+        </div>
+
+        <div class="chat-container">
+            <div class="chat-header">
+                Welcome to the Chatbot, {{ user_name }}!
+                <a href="{{ url_for('main.dashboard') }}" style="margin-right: 15px;">Dashboard</a>
+                <a href="#" id="clear-chat-button" style="margin-right: 15px;">Clear Chat</a>
+                <a href="{{ url_for('main.logout') }}">Log Out</a>
+            </div>
+            <div class="chat-messages" id="chat-messages">
+                {% for message in chat_history %}
+                    <div class="message {{ message.role }}">
+                        {{ message.content | safe }} {# Use safe filter because it's already parsed markdown #}
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="chat-input">
+                <input type="text" id="user-input" placeholder="Type your message...">
+                <button id="send-button">Send</button>
+            </div>
+            <div class="file-upload-section">
+                <label for="file-upload">Upload File</label>
+                <input type="file" id="file-upload" style="display:none;">
+                <span id="fileNameDisplay">No file chosen</span>
+            </div>
+        </div>
+
+        <script src="{{ url_for('static', filename='js/chatbot.js') }}"></script>
+    </body>
+    </html>

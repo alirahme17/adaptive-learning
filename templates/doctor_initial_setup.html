@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor: Initial Document Setup</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .course-upload-item {
+            border: 1px solid #e0e0e0;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            background-color: #fcfcfc;
+            text-align: left;
+        }
+        .course-upload-item label {
+            font-weight: bold;
+            margin-bottom: 8px;
+            display: block;
+        }
+        .course-upload-item input[type="file"] {
+            margin-top: 5px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: calc(100% - 16px);
+        }
+        .submit-button-container {
+            margin-top: 30px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Doctor: Initial Document Setup</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="flashes">
+                    {% for category, message in messages %}
+                        <li class="{{ category }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        <p>Welcome! As a newly registered Doctor, please upload at least one document for each course you supervise. These documents will form the knowledge base for your students.</p>
+        <p>You can always upload more documents later via the "Ingest Docs" link on your dashboard.</p>
+
+        <form method="POST" action="{{ url_for('main.doctor_initial_setup') }}" enctype="multipart/form-data">
+            {% if supervised_courses %}
+                {% for course in supervised_courses %}
+                    <div class="course-upload-item">
+                        <label for="document_for_course_{{ course.id }}">Upload Document for {{ course.name }} ({{ course.description }}):</label>
+                        <input type="file" id="document_for_course_{{ course.id }}" name="document_for_course_{{ course.id }}" accept=".pdf,.txt,.docx">
+                        <p style="font-size: 0.9em; color: #666; margin-top: 5px;">(Required format: PDF, TXT, or DOCX)</p>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No courses found that you supervise. Please ensure you selected courses during registration.</p>
+            {% endif %}
+
+            <div class="submit-button-container">
+                <button type="submit">Complete Setup & Upload Documents</button>
+            </div>
+        </form>
+
+        <p style="margin-top: 20px;">
+            <a href="{{ url_for('main.dashboard') }}">Skip for now and go to Dashboard</a>
+            <span style="margin: 0 10px;">|</span>
+            <a href="{{ url_for('main.logout') }}">Log Out</a>
+        </p>
+    </div>
+</body>
+</html>

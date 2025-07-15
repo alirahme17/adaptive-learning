@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .dashboard-links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .dashboard-links a {
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+            width: 200px;
+            transition: background-color 0.2s, transform 0.2s;
+        }
+        .dashboard-links a:hover {
+            background-color: #e9ecef;
+            transform: translateY(-3px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome, Doctor {{ user_name }}!</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="flashes">
+                    {% for category, message in messages %}
+                        <li class="{{ category }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        <div class="dashboard-links">
+            <a href="{{ url_for('main.chatbot') }}">Go to Chatbot</a>
+            <a href="{{ url_for('main.ingest_documents') }}">Ingest Documents</a>
+            <a href="{{ url_for('main.generate_quiz') }}">Generate Quiz</a>
+            <a href="{{ url_for('main.list_quizzes') }}">View/Manage Quizzes</a> {# New link #}
+            <a href="{{ url_for('main.profile') }}">Your Profile</a>
+        </div>
+
+        <p style="margin-top: 40px;"><a href="{{ url_for('main.logout') }}">Log Out</a></p>
+    </div>
+</body>
+</html>

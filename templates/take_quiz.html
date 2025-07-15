@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ quiz_title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .quiz-question-card {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            padding: 20px;
+            text-align: left;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .quiz-question-card h3 {
+            margin-top: 0;
+            color: #0056b3;
+            font-size: 1.15em;
+            margin-bottom: 15px;
+        }
+        .quiz-options label {
+            display: block;
+            margin-bottom: 10px;
+            cursor: pointer;
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+        .quiz-options label:hover {
+            background-color: #f0f0f0;
+            border-color: #c0c0c0;
+        }
+        .quiz-options input[type="radio"],
+        .quiz-options input[type="text"] {
+            margin-right: 8px;
+        }
+        .quiz-options input[type="text"] {
+            width: calc(100% - 20px);
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .quiz-submit-btn {
+            background-color: #28a745;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1em;
+            margin-top: 20px;
+        }
+        .quiz-submit-btn:hover {
+            background-color: #218838;
+        }
+        .quiz-short-answer-expected {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            border-radius: 4px;
+            display: none; /* Hidden by default */
+        }
+        .quiz-question-type {
+            font-size: 0.85em;
+            color: #888;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{{ quiz_title }}</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="flashes">
+                    {% for category, message in messages %}
+                        <li class="{{ category }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('main.take_quiz', quiz_id=quiz_id) }}"> {# Changed to POST form #}
+            {% for question in quiz_questions %}
+            {# Capture the current question's index (0-based) into a variable #}
+            {% set q_index = loop.index0 %}
+            <div class="quiz-question-card">
+                <h3>Question {{ loop.index }}: {{ question.question_text }}</h3>
+                <p class="quiz-question-type">Type: {{ question.question_type.replace('_', ' ').title() }}</p>
+
+                {% if question.question_type == 'mcq' or question.question_type == 'true_false' %}
+                    {# Only render options if they exist #}
+                    {% if question.options %}
+                        <div class="quiz-options">
+                            {% for option in question.options %}
+                                <label>
+                                    {# Use the captured q_index for the name attribute #}
+                                    <input type="radio" name="question_{{ q_index }}" value="{{ option }}" required> {# Added required #}
+                                    {{ option }}
+                                </label>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p>No options provided for this question.</p>
+                    {% endif %}
+                {% elif question.question_type == 'short_answer' %}
+                    <div>
+                        <label for="answer_{{ q_index }}">Your Answer:</label>
+                        {# Use the captured q_index for id and name attributes #}
+                        <input type="text" id="answer_{{ q_index }}" name="question_{{ q_index }}" placeholder="Type your answer here" required> {# Added required #}
+                    </div>
+                {% endif %}
+                {# Removed hidden correct answer for security on client-side #}
+            </div>
+            {% endfor %}
+
+            <button type="submit" class="quiz-submit-btn">Submit Quiz</button>
+        </form>
+
+        <p style="margin-top: 40px;"><a href="{{ url_for('main.list_quizzes') }}">Back to Quizzes</a></p>
+        <p><a href="{{ url_for('main.dashboard') }}">Back to Dashboard</a></p>
+        <p><a href="{{ url_for('main.logout') }}">Log Out</a></p>
+    </div>
+
+    {# Removed JS that shows expected answers on submit from client-side #}
+</body>
+</html>

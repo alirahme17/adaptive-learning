@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Video Recommendations</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Get Personalized Video Recommendations</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="flashes">
+                    {% for category, message in messages %}
+                        <li class="{{ category }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('main.recommend_videos') }}">
+            <div>
+                <label for="course_id">Course:</label>
+                <select id="course_id" name="course_id" required>
+                    {% if courses %}
+                        {% for course in courses %}
+                            <option value="{{ course.id }}">{{ course.name }}</option>
+                        {% endfor %}
+                    {% else %}
+                        <option value="">No courses available. Ask your teacher to add some!</option>
+                    {% endif %}
+                </select>
+            </div>
+            <div>
+                <label for="chapter_name">Chapter/Topic you need help with:</label>
+                <input type="text" id="chapter_name" name="chapter_name" required placeholder="e.g., Algebra, Photosynthesis, Python Loops">
+            </div>
+            <div>
+                <label for="exam_mark">Your recent Exam Mark (%) for this topic:</label>
+                <input type="number" id="exam_mark" name="exam_mark" min="0" max="100" step="0.01" required placeholder="e.g., 75.5">
+            </div>
+            <button type="submit">Get Recommendations</button>
+        </form>
+
+        <p><a href="{{ url_for('main.dashboard') }}">Back to Dashboard</a></p>
+        <p><a href="{{ url_for('main.logout') }}">Log Out</a></p>
+    </div>
+</body>
+</html>

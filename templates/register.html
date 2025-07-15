@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        /* Basic styling for multi-select dropdown, if needed */
+        .course-selection-box {
+            border: 1px solid #ddd;
+            padding: 10px;
+            max-height: 150px;
+            overflow-y: auto;
+            margin-top: 5px;
+        }
+        .course-selection-box label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: normal;
+        }
+        .course-selection-box input[type="checkbox"] {
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Register</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="flashes">
+                    {% for category, message in messages %}
+                        <li class="{{ category }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+        <form method="POST" action="{{ url_for('main.register') }}">
+            <div>
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div>
+                <label for="role">Role:</label>
+                <select id="role" name="role" required>
+                    <option value="student">Student</option>
+                    <option value="doctor">Doctor</option> {# Changed 'teacher' to 'doctor' #}
+                </select>
+            </div>
+
+            {# Student-specific fields #}
+            <div id="student_fields" style="display: none;">
+                <div>
+                    <label for="year_of_study">Year of Study:</label>
+                    <select id="year_of_study" name="year_of_study">
+                        <option value="">Select Year</option>
+                        <option value="1st Year">1st Year</option>
+                        <option value="2nd Year">2nd Year</option>
+                        <option value="3rd Year">3rd Year</option>
+                        <option value="4th Year">4th Year</option>
+                        <option value="Graduate">Graduate</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="major">Major:</label>
+                    <input type="text" id="major" name="major" placeholder="e.g., Computer Science, Biology">
+                </div>
+            </div>
+
+            {# Courses selection for both roles #}
+            <div id="course_selection_fields" style="display: none;">
+                <div>
+                    <label>Courses (Select up to 5):</label>
+                    <div class="course-selection-box">
+                        {% if courses %}
+                            {% for course in courses %}
+                                <label>
+                                    <input type="checkbox" name="selected_courses" value="{{ course.id }}"> {{ course.name }}
+                                </label>
+                            {% endfor %}
+                        {% else %}
+                            <p>No courses available. Doctor can add courses later.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit">Register</button>
+        </form>
+        <p>Already have an account? <a href="{{ url_for('main.login') }}">Log In</a></p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const roleSelect = document.getElementById('role');
+            const studentFields = document.getElementById('student_fields');
+            const courseSelectionFields = document.getElementById('course_selection_fields');
+            const courseCheckboxes = document.querySelectorAll('input[name="selected_courses"]');
+
+            function toggleFields() {
+                if (roleSelect.value === 'student') {
+                    studentFields.style.display = 'block';
+                    courseSelectionFields.style.display = 'block';
+                    // Student must select courses for initial setup
+                    courseCheckboxes.forEach(checkbox => checkbox.required = false); 
+                } else if (roleSelect.value === 'doctor') {
+                    studentFields.style.display = 'none';
+                    courseSelectionFields.style.display = 'block';
+                    // Doctor might not need to select courses initially, it's about what they teach
+                    courseCheckboxes.forEach(checkbox => checkbox.required = false);
+                } else {
+                    studentFields.style.display = 'none';
+                    courseSelectionFields.style.display = 'none';
+                    courseCheckboxes.forEach(checkbox => checkbox.required = false);
+                }
+            }
+
+            roleSelect.addEventListener('change', toggleFields);
+            toggleFields(); // Call on page load to set initial state
+
+            // Limit student course selection to 5
+            courseSelectionFields.addEventListener('change', function(event) {
+                if (roleSelect.value === 'student') {
+                    const checkedCheckboxes = document.querySelectorAll('#course_selection_fields input[name="selected_courses"]:checked');
+                    if (checkedCheckboxes.length > 5) {
+                        event.target.checked = false; // Uncheck the one just clicked
+                        alert('You can select a maximum of 5 courses.');
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

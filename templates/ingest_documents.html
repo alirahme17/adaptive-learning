@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ingest Documents</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        /* Basic styling for multi-select dropdown, if needed */
+        .document-selection {
+            border: 1px solid #ccc;
+            padding: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .document-selection label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: normal;
+        }
+        .document-selection input[type="checkbox"] {
+            margin-right: 5px;
+        }
+        .document-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+            padding: 5px 0;
+            border-bottom: 1px dashed #eee;
+        }
+        .document-item:last-child {
+            border-bottom: none;
+        }
+        .document-item button.delete-btn {
+            background-color: #dc3545; /* Red for delete */
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+        }
+        .document-item button.delete-btn:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Ingest Learning Documents</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="flashes">
+                    {% for category, message in messages %}
+                        <li class="{{ category }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('main.ingest_documents') }}" enctype="multipart/form-data">
+            <div>
+                <label for="documents">Select Documents (PDF, TXT, DOCX):</label>
+                <input type="file" id="documents" name="documents" multiple accept=".pdf,.txt,.docx" required>
+            </div>
+            <button type="submit">Upload & Ingest</button>
+        </form>
+
+        <h2>Existing Documents in Knowledge Base:</h2>
+        <ul class="quiz-list"> {# Reuse quiz-list styling or add new #}
+        {% if existing_documents %}
+            {% for doc_name in existing_documents %}
+                <li class="document-item" id="doc-{{ loop.index }}"> {# Add ID for JS removal #}
+                    <span>{{ doc_name }}</span>
+                    <button class="delete-btn" data-filename="{{ doc_name }}">Delete</button>
+                </li>
+            {% endfor %}
+        {% else %}
+            <p>No documents found in the knowledge base yet.</p>
+        {% endif %}
+        </ul>
+
+        <p><a href="{{ url_for('main.dashboard') }}">Back to Dashboard</a></p>
+        <p><a href="{{ url_for('main.logout') }}">Log Out</a></p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const deleteButtons = document.querySelectorAll('.delete-btn');
+            const existingDocumentsList = document.querySelector('.quiz-list'); // Assuming you used .quiz-list from previous
+
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', async function() {
+                    const filename = this.dataset.filename;
+                    if (confirm(`Are you sure you want to delete "${filename}" from the knowledge base? This action cannot be undone.`)) {
+                        try {
+                            const formData = new FormData();
+                            formData.append('filename', filename);
+
+                            const response = await fetch('{{ url_for('main.delete_knowledge_base_document') }}', {
+                                method: 'POST',
+                                body: formData,
+                            });
+
+                            const result = await response.json();
+
+                            if (result.success) {
+                                alert(result.message);
+                                // Remove the item from the DOM
+                                this.closest('.document-item').remove();
+                                // Optional: If no documents left, display "No documents found"
+                                if (existingDocumentsList && existingDocumentsList.children.length === 0) {
+                                    existingDocumentsList.innerHTML = '<p>No documents found in the knowledge base yet.</p>';
+                                }
+                            } else {
+                                alert('Error: ' + result.message);
+                            }
+                        } catch (error) {
+                            console.error('Error deleting document:', error);
+                            alert('An unexpected error occurred while deleting the document.');
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
