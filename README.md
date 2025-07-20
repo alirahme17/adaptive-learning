@@ -19,10 +19,6 @@
 7.  [Usage](#usage)
 8.  [Challenges Faced](#challenges-faced)
 9.  [Future Enhancements](#future-enhancements)
-10. [Contributing](#contributing)
-11. [License](#license)
-12. [Contact](#contact)
-
 ---
 
 ## 1. About the Project
