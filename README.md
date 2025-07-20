@@ -1,7 +1,5 @@
 # Adaptive Learning Platform: Personalized Education with Local AI
 
-![Platform Screenshot Placeholder](images/platform_screenshot.png) 
-*(You can replace this with an actual screenshot of your application's dashboard or chatbot interface.)*
 
 ## Table of Contents
 1.  [About the Project](#about-the-project)
@@ -39,7 +37,6 @@ Experience the Adaptive Learning Platform in action! This video provides a compr
 * **User Registration & Login:** Demonstrates the personalized onboarding for Students and Doctors, including course selection.
 * **Doctor Initial Setup:** Shows a Doctor uploading initial learning documents to populate the knowledge base.
 * **Chatbot Interaction:** Highlights the real-time, streaming AI chatbot, its RAG capabilities, and how it answers questions from ingested documents.
-* **Image-based Question Answering (OCR):** A student uploading an image with a question, and the chatbot extracting text via OCR to provide an answer.
 * **AI-Generated Quizzes:**
     * A Doctor generating a contextualized quiz based on a supervised course and lesson.
     * A Student generating a private quiz for self-practice and immediately taking it.
@@ -87,7 +84,6 @@ Experience the Adaptive Learning Platform in action! This video provides a compr
 * **LLM Runtime:** `llama_cpp-python`
 * **Text Embeddings:** `sentence-transformers` (`all-MiniLM-L6-v2`)
 * **Vector Database:** `ChromaDB`
-* **Optical Character Recognition (OCR):** `EasyOCR`
 * **External API:** `Google API Python Client` (for YouTube Data API v3)
 * **Frontend:** `HTML5`, `CSS3` (Custom), `JavaScript` (`marked.js`)
 * **Password Hashing:** `Werkzeug`
